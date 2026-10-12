@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import EventRow from '../components/EventRow'
 import NicheTabs from '../components/NicheTabs'
+import Timetable from '../components/Timetable'
 import { fetchWeek } from '../lib/events'
 
 // A placeholder name until logins (Hack Session 7).
@@ -51,11 +51,7 @@ export default function Home() {
       </section>
 
       <div className="grid gap-12 border-t-[6px] border-ink pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-        <ul>
-          {shown.map((event) => (
-            <EventRow key={event.id} event={event} />
-          ))}
-        </ul>
+        <Timetable events={shown} status={status} niche={niche} />
       </div>
     </main>
   )
