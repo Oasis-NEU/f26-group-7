@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import MapPanel from '../components/MapPanel'
 import NicheTabs from '../components/NicheTabs'
 import Timetable from '../components/Timetable'
+import TonightPanel from '../components/TonightPanel'
 import { fetchWeek } from '../lib/events'
 
 // A placeholder name until logins (Hack Session 7).
@@ -37,6 +39,7 @@ export default function Home() {
 
   const shown =
     niche === 'All' ? events : events.filter((event) => event.niche === niche)
+  const next = shown.find((event) => event.change?.type !== 'cancelled')
 
   return (
     <main className="mx-auto max-w-content px-4 pb-20 md:px-10">
@@ -52,6 +55,10 @@ export default function Home() {
 
       <div className="grid gap-12 border-t-[6px] border-ink pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <Timetable events={shown} status={status} niche={niche} />
+        <aside className="max-w-120">
+          <MapPanel />
+          <TonightPanel event={next} />
+        </aside>
       </div>
     </main>
   )
