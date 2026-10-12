@@ -1,1 +1,39 @@
 @import 'tailwindcss';
+
+/* Design tokens. Components only use these names, so changing a value
+   here changes it everywhere. Stage 1: plain black on white. */
+@theme {
+  /* Page colors: these change in stage 2 */
+  --color-paper: #ffffff;
+  --color-ink: #111111;
+  --color-on-ink: #ffffff;
+  --color-rule-light: rgba(17, 17, 17, 0.22);
+  --color-muted: rgba(17, 17, 17, 0.68);
+  --color-badge-ring: transparent;
+
+  /* Colors that never change */
+  --color-coal: #111111;
+  --color-green-line: #00843d;
+  --color-red-line: #da291c;
+  --color-orange-line: #ed8b00;
+  --color-blue-line: #003da5;
+  --color-alert: #ffc72c;
+  --color-map-land: #f3f1ed;
+
+  /* Type sizes */
+  --text-display: clamp(3.375rem, 8.2vw, 7.75rem);
+  --text-display--line-height: 0.86;
+  --text-display--letter-spacing: -0.05em;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.15;
+
+  /* Page width */
+  --container-content: 80rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
