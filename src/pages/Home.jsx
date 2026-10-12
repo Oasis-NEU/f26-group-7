@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import EventRow from '../components/EventRow'
 import NicheTabs from '../components/NicheTabs'
 import { fetchWeek } from '../lib/events'
 
@@ -48,6 +49,14 @@ export default function Home() {
           <NicheTabs selected={niche} onSelect={setNiche} />
         </div>
       </section>
+
+      <div className="grid gap-12 border-t-[6px] border-ink pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+        <ul>
+          {shown.map((event) => (
+            <EventRow key={event.id} event={event} />
+          ))}
+        </ul>
+      </div>
     </main>
   )
 }
