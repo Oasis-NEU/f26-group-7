@@ -39,3 +39,20 @@ export async function fetchWeek() {
   if (error) throw error
   return data.map(toEvent)
 }
+
+// Calls onChange whenever a row is added, changed or deleted, so the page
+// can reload. Returns a function that stops listening.
+export function watchEvents(onChange) {
+  const channel = supabase
+    .channel('events-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'events' },
+      onChange,
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}

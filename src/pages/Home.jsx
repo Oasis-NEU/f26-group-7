@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import MapPanel from '../components/MapPanel'
 import NicheTabs from '../components/NicheTabs'
-import Timetable from '../components/Timetable'
+import Timetable from '../components/TimeTable'
 import TonightPanel from '../components/TonightPanel'
-import { fetchWeek } from '../lib/events'
+import { fetchWeek, watchEvents } from '../lib/events'
 
 // A placeholder name until logins (Hack Session 7).
 const userName = 'Jordan'
@@ -35,6 +35,8 @@ export default function Home() {
     }
 
     load()
+    // Reload whenever the engine adds, changes or removes an event.
+    return watchEvents(load)
   }, [])
 
   const shown =
