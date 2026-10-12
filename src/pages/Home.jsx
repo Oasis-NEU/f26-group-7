@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import NicheTabs from '../components/NicheTabs'
 import { fetchWeek } from '../lib/events'
 
 // A placeholder name until logins (Hack Session 7).
@@ -15,6 +16,7 @@ function countText(status, count) {
 export default function Home() {
   const [events, setEvents] = useState([])
   const [status, setStatus] = useState('loading')
+  const [niche, setNiche] = useState('All')
 
   useEffect(() => {
     function load() {
@@ -32,6 +34,9 @@ export default function Home() {
     load()
   }, [])
 
+  const shown =
+    niche === 'All' ? events : events.filter((event) => event.niche === niche)
+
   return (
     <main className="mx-auto max-w-content px-4 pb-20 md:px-10">
       <section className="grid gap-8 py-10 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] md:gap-12 md:py-12">
@@ -39,7 +44,8 @@ export default function Home() {
           Welcome back, {userName}
         </h1>
         <div className="min-w-0 md:pt-3">
-          <p className="mb-5 text-lg">{countText(status, events.length)}</p>
+          <p className="mb-5 text-lg">{countText(status, shown.length)}</p>
+          <NicheTabs selected={niche} onSelect={setNiche} />
         </div>
       </section>
     </main>
