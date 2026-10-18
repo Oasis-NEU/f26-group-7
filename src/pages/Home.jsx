@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import MapPanel from '../components/MapPanel'
 import NicheTabs from '../components/NicheTabs'
-import Timetable from '../components/TimeTable'
+import Timetable from '../components/Timetable'
 import TonightPanel from '../components/TonightPanel'
 import { fetchWeek, watchEvents } from '../lib/events'
 

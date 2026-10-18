@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
-// The project URL and publishable key come from .env.local.
+// The project URL and anonymous key come from .env.
 // Vite only gives the browser variables whose names start with VITE_.
 const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!url || !key) {
   throw new Error(
-    'Missing Supabase settings. Check .env.local, then restart npm run dev.',
+    'Missing Supabase settings. Check .env, then restart npm run dev.',
   )
 }
 
