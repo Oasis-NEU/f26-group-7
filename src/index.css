@@ -1,15 +1,16 @@
 @import 'tailwindcss';
 
 /* Design tokens. Components only use these names, so changing a value
-   here changes it everywhere. Stage 1: plain black on white. */
+   here changes it everywhere. Stage 2: cream on purple. */
 @theme {
-  /* Page colors: these change in stage 2 */
-  --color-paper: #ffffff;
-  --color-ink: #111111;
-  --color-on-ink: #ffffff;
-  --color-rule-light: rgba(17, 17, 17, 0.22);
-  --color-muted: rgba(17, 17, 17, 0.68);
-  --color-badge-ring: transparent;
+  /* Page colors. on-ink is the text on cream blocks, so it matches paper.
+     The badge ring stays cream so line badges stand out on purple. */
+  --color-paper: #79319b;
+  --color-ink: #fdf8ee;
+  --color-on-ink: #79319b;
+  --color-rule-light: rgba(253, 248, 238, 0.28);
+  --color-muted: rgba(253, 248, 238, 0.8);
+  --color-badge-ring: #fdf8ee;
 
   /* Colors that never change */
   --color-coal: #111111;
@@ -32,8 +33,24 @@
 }
 
 @layer base {
+  /* Dark scrollbars and form controls, to match the purple page. */
+  html {
+    color-scheme: dark;
+  }
+
   body {
     background-color: var(--color-paper);
     color: var(--color-ink);
+  }
+
+  /* A yellow ring around whatever the keyboard is on (Tab key). */
+  :focus-visible {
+    outline: 3px solid var(--color-alert);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-alert);
+    color: var(--color-coal);
   }
 }

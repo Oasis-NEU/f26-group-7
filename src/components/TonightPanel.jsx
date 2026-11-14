@@ -1,6 +1,7 @@
 import { dayLabel, formatTime } from '../lib/dates'
 import { ArrowUpRightIcon } from './Icons'
 import LineBadge from './LineBadge'
+import { ButtonLink } from './ui/Button'
 
 // The next event, with how to get there.
 export default function TonightPanel({ event }) {
@@ -22,15 +23,10 @@ export default function TonightPanel({ event }) {
         <LineBadge line={event.line} />
         {event.stop}, {event.walkMinutes} minute walk
       </p>
-      <a
-        href={directions}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-4 inline-flex items-center gap-2 bg-ink px-4 py-3 text-[15px] font-bold text-on-ink"
-      >
+      <ButtonLink href={directions} className="mt-4">
         Directions in Google Maps
         <ArrowUpRightIcon className="size-4" />
-      </a>
+      </ButtonLink>
     </section>
   )
 }

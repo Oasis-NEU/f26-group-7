@@ -34,8 +34,11 @@ npm run check     # Run tests, lint, and build
 ## Current routes
 
 - `/` - weekly event discovery and niche filtering
-- `/messages` - placeholder for public alerts
-- `/profile` - placeholder for profile preferences
+- `/styleguide` - every color, component and form control, for the team
+
+Placeholders, each built in a later roadmap step: `/explore`, `/events/:id`, `/events/new`, `/messages`, `/friends`, `/u/:username`, `/profile`, `/notifications`, `/settings`, `/admin`, and the sign-in screens `/welcome`, `/login`, `/signup`, `/onboarding`.
+
+Shared building blocks (buttons, form fields, avatars, dialogs, empty states) live in `src/components/ui/`. Colors are tokens in `src/index.css`; use the token names, never raw colors.
 
 ## Supabase
 
