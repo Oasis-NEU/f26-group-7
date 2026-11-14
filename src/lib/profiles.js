@@ -88,16 +88,29 @@ export function photoProblem(file) {
   return null
 }
 
+// Each person's photo lives at avatars/<their id>/avatar.
+function avatarPath(userId) {
+  return `${userId}/avatar`
+}
+
 // Puts the photo in the user's own folder (replacing the old one) and
 // returns its public link. The ?v= part makes browsers fetch the new
 // photo instead of showing a saved copy of the old one.
 export async function uploadAvatar(userId, file) {
-  const path = `${userId}/avatar`
   const { error } = await supabase.storage
     .from('avatars')
-    .upload(path, file, { upsert: true, contentType: file.type })
+    .upload(avatarPath(userId), file, { upsert: true, contentType: file.type })
   if (error) throw error
 
-  const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+  const { data } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(avatarPath(userId))
   return `${data.publicUrl}?v=${Date.now()}`
+}
+
+export async function removeAvatar(userId) {
+  const { error } = await supabase.storage
+    .from('avatars')
+    .remove([avatarPath(userId)])
+  if (error) throw error
 }

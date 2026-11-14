@@ -33,10 +33,21 @@ npm run check     # Run tests, lint, and build
 
 ## Current routes
 
-- `/` - weekly event discovery and niche filtering
-- `/styleguide` - every color, component and form control, for the team
+Anyone can see:
 
-Placeholders, each built in a later roadmap step: `/explore`, `/events/:id`, `/events/new`, `/messages`, `/friends`, `/u/:username`, `/profile`, `/notifications`, `/settings`, `/admin`, and the sign-in screens `/welcome`, `/login`, `/signup`, `/onboarding`.
+- `/` - weekly event discovery and niche filtering
+- `/welcome`, `/login`, `/signup` - what Espial is, and email-and-password accounts
+- `/styleguide` - every color, component and form control
+
+Need an account (logged-out visitors are sent to `/login`, then back):
+
+- `/onboarding` - name, username, niches, home stop and school; required once before anything else
+- `/profile` - your profile
+- `/settings` - edit your profile, photo, preferences and privacy; log out
+
+Placeholders, each built in a later roadmap step: `/explore`, `/events/:id`, `/u/:username` (public), and `/events/new`, `/messages`, `/friends`, `/notifications`, `/admin` (account needed).
+
+Who's logged in comes from `useAuth()` in `src/lib/useAuth.js`; the route guards are in `src/components/Guards.jsx`.
 
 Shared building blocks (buttons, form fields, avatars, dialogs, empty states) live in `src/components/ui/`. Colors are tokens in `src/index.css`; use the token names, never raw colors.
 
@@ -46,7 +57,15 @@ The database's structure lives in `supabase/migrations/`, one numbered SQL file 
 
 ## Git workflow
 
-The shared integration branch is `origin/main`. Work on the provided `landon` branch or another existing feature branch. If a new branch is necessary, use a descriptive name without a person's name, such as `phase-1-foundation` or `interactive-map`.
+The shared integration branch is `origin/main`. Make one short-lived branch per feature, starting from the latest `main`, and name it for what it holds, without a person's name or a step number, such as `accounts` or `interactive-map`:
+
+```bash
+git switch main
+git pull
+git switch -c interactive-map
+```
+
+Open a pull request into `main` when the feature is done, and delete the branch after it merges.
 
 Before pushing, verify the branch and worktree:
 
