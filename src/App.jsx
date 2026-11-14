@@ -1,4 +1,9 @@
 import { Route, Routes } from 'react-router'
+import {
+  RequireAuth,
+  RequireLoggedOut,
+  RequireOnboarded,
+} from './components/Guards'
 import AppLayout from './layouts/AppLayout'
 import AuthLayout from './layouts/AuthLayout'
 import Admin from './pages/Admin'
@@ -19,32 +24,46 @@ import Styleguide from './pages/Styleguide'
 import UserProfile from './pages/UserProfile'
 import Welcome from './pages/Welcome'
 
-// Every page on the site. Pages inside a layout route share its frame.
+// Every page on the site. Pages inside a layout route share its frame;
+// pages inside a guard route only show when the guard allows it.
 export default function App() {
   return (
     <Routes>
-      <Route element={<AppLayout />}>
-        <Route index element={<Home />} />
-        <Route path="explore" element={<Explore />} />
-        <Route path="events/new" element={<CreateEvent />} />
-        <Route path="events/:id" element={<EventDetail />} />
-        <Route path="messages" element={<Messages />} />
-        <Route path="messages/:conversationId" element={<Messages />} />
-        <Route path="friends" element={<Friends />} />
-        <Route path="u/:username" element={<UserProfile />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="admin" element={<Admin />} />
-        <Route path="styleguide" element={<Styleguide />} />
-        <Route path="*" element={<NotFound />} />
+      {/* Logged-in people finish onboarding before anything else. */}
+      <Route element={<RequireOnboarded />}>
+        <Route element={<AppLayout />}>
+          {/* Anyone can see these. */}
+          <Route index element={<Home />} />
+          <Route path="explore" element={<Explore />} />
+          <Route path="events/:id" element={<EventDetail />} />
+          <Route path="u/:username" element={<UserProfile />} />
+          <Route path="styleguide" element={<Styleguide />} />
+
+          {/* These need an account. */}
+          <Route element={<RequireAuth />}>
+            <Route path="events/new" element={<CreateEvent />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="messages/:conversationId" element={<Messages />} />
+            <Route path="friends" element={<Friends />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="admin" element={<Admin />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Route>
       </Route>
 
       <Route element={<AuthLayout />}>
         <Route path="welcome" element={<Welcome />} />
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-        <Route path="onboarding" element={<Onboarding />} />
+        <Route element={<RequireLoggedOut />}>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+        </Route>
+        <Route element={<RequireAuth />}>
+          <Route path="onboarding" element={<Onboarding />} />
+        </Route>
       </Route>
     </Routes>
   )

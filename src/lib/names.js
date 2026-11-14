@@ -1,5 +1,10 @@
 // Helpers for showing people's names.
 
+// "Jordan Lee" -> "Jordan"
+export function firstName(name = '') {
+  return (name ?? '').trim().split(/\s+/)[0]
+}
+
 // "Jordan Lee" -> "JL"
 export function initials(name = '') {
   return name

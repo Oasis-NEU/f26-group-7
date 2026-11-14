@@ -4,10 +4,16 @@ import NicheTabs from '../components/NicheTabs'
 import Timetable from '../components/Timetable'
 import TonightPanel from '../components/TonightPanel'
 import { fetchWeek, watchEvents } from '../lib/events'
+import { firstName } from '../lib/names'
 import { nextEvent } from '../lib/schedule'
+import { useAuth } from '../lib/useAuth'
 
-// A placeholder name until logins (Hack Session 7).
-const userName = 'Jordan'
+// "Welcome back, Jordan" when logged in. The display size is huge, so
+// only the first name.
+function headline(profile) {
+  const name = firstName(profile?.displayName) || profile?.username
+  return name ? `Welcome back, ${name}` : 'Find the small stuff'
+}
 
 // The line under the headline: loading, an error, or how many events.
 function countText(status, count) {
@@ -18,6 +24,7 @@ function countText(status, count) {
 }
 
 export default function Home() {
+  const { profile } = useAuth()
   const [events, setEvents] = useState([])
   const [status, setStatus] = useState('loading')
   const [niche, setNiche] = useState('All')
@@ -49,7 +56,7 @@ export default function Home() {
     <main className="mx-auto max-w-content px-4 pb-20 md:px-10">
       <section className="grid gap-8 py-10 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] md:gap-12 md:py-12">
         <h1 className="text-display font-extrabold text-balance">
-          Welcome back, {userName}
+          {headline(profile)}
         </h1>
         <div className="min-w-0 md:pt-3">
           <p className="mb-5 text-lg">{countText(status, shown.length)}</p>
