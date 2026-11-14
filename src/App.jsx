@@ -15,6 +15,7 @@ import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Signup from './pages/Signup'
+import Styleguide from './pages/Styleguide'
 import UserProfile from './pages/UserProfile'
 import Welcome from './pages/Welcome'
 
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="notifications" element={<Notifications />} />
         <Route path="settings" element={<Settings />} />
         <Route path="admin" element={<Admin />} />
+        <Route path="styleguide" element={<Styleguide />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 

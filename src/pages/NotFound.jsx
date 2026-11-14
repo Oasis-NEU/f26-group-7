@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { ButtonLink } from '../components/ui/Button'
 
 // Shown for any address that doesn't match a page.
 export default function NotFound() {
@@ -8,12 +8,9 @@ export default function NotFound() {
         This stop isn’t on the line
       </h1>
       <p className="mt-6 text-lg">The page you’re looking for doesn’t exist.</p>
-      <Link
-        to="/"
-        className="mt-6 inline-block bg-ink px-4 py-3 text-[15px] font-bold text-on-ink"
-      >
+      <ButtonLink to="/" className="mt-6">
         Back to events
-      </Link>
+      </ButtonLink>
     </main>
   )
 }
