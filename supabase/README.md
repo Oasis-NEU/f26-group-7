@@ -21,6 +21,7 @@ numbered and run in order, like commits for the database.
 | `0002_existing_tables.sql` | Records `profiles`, `rsvps`, `messages` and the `events` source columns, which were first made in the dashboard |
 | `0003_migration_log.sql` | The `schema_migrations` log table |
 | `0004_events_details.sql` | Event details (description, image, end time, location, price, adults only, status), rules for valid niches, lines and prices, one row per `(source, source_id)`, search, and "only published events are public" |
+| `0005_profiles_details.sql` | Profile details (username, bio, school, home stop, privacy, role, onboarding), private columns readable only through `my_profile()`, safer profile editing, and the `avatars` photo bucket |
 
 ### Rules
 
@@ -72,6 +73,17 @@ delete from public.events where source = 'seed';
 ```
 
 Deleting an event also deletes any RSVPs on it.
+
+## Sign-in settings
+
+These live in the dashboard under **Authentication**, not in a migration:
+
+- **Sign In / Providers → Email**: on, with email and password.
+- **Confirm email**: off while developing, because Supabase's built-in
+  email sender only allows a few emails an hour. **Turn it back on (and
+  set up a real email sender) before real people use the site.**
+- **URL Configuration → Site URL**: `http://localhost:5173`, so links in
+  Supabase emails come back to your computer.
 
 ## Keys
 
