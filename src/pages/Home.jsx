@@ -4,6 +4,7 @@ import NicheTabs from '../components/NicheTabs'
 import Timetable from '../components/Timetable'
 import TonightPanel from '../components/TonightPanel'
 import { fetchWeek, watchEvents } from '../lib/events'
+import { nextEvent } from '../lib/schedule'
 
 // A placeholder name until logins (Hack Session 7).
 const userName = 'Jordan'
@@ -41,7 +42,8 @@ export default function Home() {
 
   const shown =
     niche === 'All' ? events : events.filter((event) => event.niche === niche)
-  const next = shown.find((event) => event.change?.type !== 'cancelled')
+  const now = new Date()
+  const next = nextEvent(shown, now)
 
   return (
     <main className="mx-auto max-w-content px-4 pb-20 md:px-10">
@@ -59,7 +61,7 @@ export default function Home() {
         <Timetable events={shown} status={status} niche={niche} />
         <aside className="max-w-120">
           <MapPanel />
-          <TonightPanel event={next} />
+          <TonightPanel event={next} now={now} />
         </aside>
       </div>
     </main>

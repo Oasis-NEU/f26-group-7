@@ -20,6 +20,7 @@ numbered and run in order, like commits for the database.
 | `0001_events.sql` | The `events` table |
 | `0002_existing_tables.sql` | Records `profiles`, `rsvps`, `messages` and the `events` source columns, which were first made in the dashboard |
 | `0003_migration_log.sql` | The `schema_migrations` log table |
+| `0004_events_details.sql` | Event details (description, image, end time, location, price, adults only, status), rules for valid niches, lines and prices, one row per `(source, source_id)`, search, and "only published events are public" |
 
 ### Rules
 
