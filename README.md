@@ -39,7 +39,7 @@ npm run check     # Run tests, lint, and build
 
 ## Supabase
 
-The current database schema is in `supabase/table.sql`. It defines the readable `events` table and enables realtime event updates. Public event reads are handled in `src/lib/events.js`; the browser does not perform privileged writes.
+The database's structure lives in `supabase/migrations/`, one numbered SQL file per change, and `supabase/seed.sql` adds sample events. Read [supabase/README.md](supabase/README.md) before changing the database. Public event reads are handled in `src/lib/events.js`; the browser does not perform privileged writes.
 
 ## Git workflow
 
