@@ -36,6 +36,9 @@ from
   (values
     -- n, title, niche, neighborhood, venue, stop, line, walk, going,
     -- day, time, change, new day, new time, new venue
+    --
+    -- Days are counted from whenever this file is run, so titles must
+    -- not name a weekday ("Sunday flea" could land on a Tuesday).
 
     -- Today
     (1, 'Vinyl listening hour', 'Records', 'Fenway', 'Westland Ave record nook', 'Symphony', 'GL E', 3, 12,
@@ -90,7 +93,7 @@ from
       4, '23:00', null, null, null, null),
 
     -- In 5 days
-    (22, 'Weekend makers market', 'Markets', 'Downtown', 'Washington St pedestrian zone', 'Downtown Crossing', 'OL', 1, 61,
+    (22, 'Makers market on Washington St', 'Markets', 'Downtown', 'Washington St pedestrian zone', 'Downtown Crossing', 'OL', 1, 61,
       5, '10:00', null, null, null, null),
     (23, 'Greenway walking tour', 'Outdoors', 'Downtown', 'Rose Kennedy Greenway', 'State', 'OL', 4, 20,
       5, '11:00', null, null, null, null),
@@ -102,7 +105,7 @@ from
       5, '20:00', null, null, null, null),
 
     -- In 6 days
-    (27, 'Sunday vintage flea', 'Thrift', 'Downtown', 'City Hall Plaza', 'Government Center', 'BL', 2, 41,
+    (27, 'Vintage flea on the plaza', 'Thrift', 'Downtown', 'City Hall Plaza', 'Government Center', 'BL', 2, 41,
       6, '10:00', null, null, null, null),
     (28, 'Co-working brunch at a tea house', 'Third spots', 'Chinatown', 'Kneeland St tea house', 'Tufts Medical Center', 'OL', 2, 12,
       6, '11:00', null, null, null, null),
