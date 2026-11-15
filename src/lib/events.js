@@ -2,8 +2,9 @@ import { daysFromNow } from './dates'
 import { supabase } from './supabase'
 
 // The columns the site uses. Not '*': the table also has a large `search`
-// column (words for searching) that the browser never needs.
-const COLUMNS = [
+// column (words for searching) that the browser never needs. Exported for
+// queries that load events along with something else (RSVPs, saves).
+export const EVENT_COLUMNS = [
   'id',
   'title',
   'niche',
@@ -84,7 +85,7 @@ export function toEvent(row) {
 export async function fetchWeek() {
   const { data, error } = await supabase
     .from('events')
-    .select(COLUMNS)
+    .select(EVENT_COLUMNS)
     .gte('start_at', daysFromNow(0, 0).toISOString())
     .lt('start_at', daysFromNow(7, 0).toISOString())
     .order('start_at')
@@ -93,18 +94,40 @@ export async function fetchWeek() {
   return data.map(toEvent)
 }
 
+// One event by its id, or null if there's no published event with that id.
+export async function fetchEvent(id) {
+  // Ids are whole numbers; anything else ("/events/abc") can't match.
+  if (!/^\d+$/.test(String(id))) return null
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(EVENT_COLUMNS)
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data ? toEvent(data) : null
+}
+
 // Calls onChange when rows are added, changed or deleted, so the page can
 // reload. Changes often come in bursts (the engine saves many events at
 // once), so it waits until there's been a quiet `waitMs` and calls
-// onChange once. Returns a function that stops listening.
-export function watchEvents(onChange, waitMs = 2000) {
+// onChange once. Pass `id` to watch just one event. Returns a function
+// that stops listening.
+export function watchEvents(onChange, { waitMs = 2000, id } = {}) {
   let timer
 
   const channel = supabase
-    .channel('events-changes')
+    // Each watcher needs its own channel name.
+    .channel(id ? `event-${id}` : 'events-changes')
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'events' },
+      {
+        event: '*',
+        schema: 'public',
+        table: 'events',
+        ...(id && { filter: `id=eq.${id}` }),
+      },
       () => {
         clearTimeout(timer)
         timer = setTimeout(onChange, waitMs)

@@ -1,13 +1,16 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { AuthContext } from './lib/useAuth'
 
-// Fake Supabase and events, so tests never use the network.
+// Fake Supabase and events, so tests never use the network. There are
+// no events, so every event page is "not on the schedule".
 vi.mock('./lib/supabase', () => ({ supabase: {} }))
 vi.mock('./lib/events', () => ({
   fetchWeek: () => Promise.resolve([]),
+  fetchEvent: () => Promise.resolve(null),
   watchEvents: () => () => {},
 }))
 
@@ -42,12 +45,18 @@ const NOT_ONBOARDED = {
 // Render the whole app as if the browser were at `path`, as someone in
 // the given login state.
 function visit(path, auth = LOGGED_OUT) {
+  // A fresh cache for each test, so one test's data can't leak into another.
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   render(
-    <AuthContext.Provider value={auth}>
-      <MemoryRouter initialEntries={[path]}>
-        <App />
-      </MemoryRouter>
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider value={auth}>
+        <MemoryRouter initialEntries={[path]}>
+          <App />
+        </MemoryRouter>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   )
 }
 
@@ -72,9 +81,13 @@ describe('pages anyone can see', () => {
     expect(pageTitle()).toBe(title)
   })
 
-  it('reads values out of the address', () => {
+  it('shows the event page for an event address', async () => {
     visit('/events/12')
-    expect(pageTitle()).toBe('Event 12')
+    expect(
+      await screen.findByRole('heading', {
+        name: 'This event isn’t on the schedule',
+      }),
+    ).toBeVisible()
   })
 
   it('reads a username out of the address', () => {

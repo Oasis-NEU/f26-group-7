@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { formatTime } from '../lib/dates'
 import AlertChip from './AlertChip'
 import LineBadge from './LineBadge'
@@ -17,7 +18,11 @@ export default function EventRow({ event }) {
       </p>
 
       <div>
-        <h4 className="text-title font-bold">{title}</h4>
+        <h4 className="text-title font-bold">
+          <Link to={`/events/${event.id}`} className="hover:underline">
+            {title}
+          </Link>
+        </h4>
         <p className="mt-1 text-sm">
           {niche}, {neighborhood}, {going} going
         </p>

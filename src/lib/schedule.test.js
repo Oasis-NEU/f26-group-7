@@ -4,6 +4,7 @@ import {
   actualStart,
   actualVenue,
   isHappening,
+  isOver,
   nextEvent,
 } from './schedule'
 
@@ -58,6 +59,18 @@ describe('isHappening', () => {
 
   it('is false without an end time', () => {
     expect(isHappening(event({ end: null }), at('18:00'))).toBe(false)
+  })
+})
+
+describe('isOver', () => {
+  it('is true once the end has passed', () => {
+    expect(isOver(event(), at('18:59'))).toBe(false)
+    expect(isOver(event(), at('19:00'))).toBe(true)
+  })
+
+  it('assumes two hours without an end time', () => {
+    expect(isOver(event({ end: null }), at('18:30'))).toBe(false)
+    expect(isOver(event({ end: null }), at('19:00'))).toBe(true)
   })
 })
 

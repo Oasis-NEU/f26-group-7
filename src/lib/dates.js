@@ -45,6 +45,19 @@ export function formatTime(date) {
   return time.replace(':00', '')
 }
 
+// "Sat, Nov 14, 5–7 PM", "Sat, Nov 14, 11 PM–1 AM", or just
+// "Sat, Nov 14, 7 PM" when the end isn't known.
+export function timeRange(start, end) {
+  const day = longDate(start)
+  const from = formatTime(start)
+  if (!end) return `${day}, ${from}`
+
+  const to = formatTime(end)
+  // Say PM once when both times share it: "5–7 PM", not "5 PM–7 PM".
+  const samePeriod = from.slice(-2) === to.slice(-2) && isSameDay(start, end)
+  return `${day}, ${samePeriod ? from.slice(0, -3) : from}–${to}`
+}
+
 // Turns a list of events into one group per day:
 // [{ date, events: [...] }, ...]
 export function groupByDay(events) {
