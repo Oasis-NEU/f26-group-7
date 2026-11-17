@@ -1,10 +1,50 @@
 import { useState } from 'react'
+import EventList from '../components/EventList'
 import Avatar from '../components/ui/Avatar'
 import { Button, ButtonLink } from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import FormError from '../components/ui/FormError'
 import { logOut } from '../lib/auth'
 import { useAuth } from '../lib/useAuth'
+import { useMyUpcoming } from '../lib/useMyEvents'
+
+// Going, Interested and Saved, each only when it has something in it.
+function UpcomingEvents() {
+  const { data, isPending, isError } = useMyUpcoming()
+
+  if (isPending) return <p>Loading your events…</p>
+  if (isError) return <p>Your events didn’t load. Try refreshing.</p>
+
+  const groups = [
+    ['Going', data.going],
+    ['Interested', data.interested],
+    ['Saved', data.saved],
+  ].filter(([, events]) => events.length > 0)
+
+  if (groups.length === 0) {
+    return (
+      <EmptyState
+        title="Nothing yet"
+        message="Events you RSVP to or save will show up here."
+      >
+        <ButtonLink to="/">Find events</ButtonLink>
+      </EmptyState>
+    )
+  }
+
+  return (
+    <div className="grid gap-8">
+      {groups.map(([label, events]) => (
+        <section key={label}>
+          <h3 className="mb-1 text-lg font-extrabold">
+            {label} ({events.length})
+          </h3>
+          <EventList events={events} />
+        </section>
+      ))}
+    </div>
+  )
+}
 
 // Your own profile. Other people's profiles (/u/:username) come with
 // friends.
@@ -71,12 +111,7 @@ export default function Profile() {
 
       <section className="mt-12 border-t-2 border-ink pt-6">
         <h2 className="mb-5 text-title font-extrabold">Your upcoming events</h2>
-        <EmptyState
-          title="Nothing yet"
-          message="Events you RSVP to will show up here."
-        >
-          <ButtonLink to="/">Find events</ButtonLink>
-        </EmptyState>
+        <UpcomingEvents />
       </section>
     </main>
   )

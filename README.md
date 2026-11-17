@@ -36,18 +36,19 @@ npm run check     # Run tests, lint, and build
 Anyone can see:
 
 - `/` - weekly event discovery and niche filtering
+- `/events/:id` - one event: details, directions, calendar, sharing, and Going / Interested / Save when logged in
 - `/welcome`, `/login`, `/signup` - what Espial is, and email-and-password accounts
 - `/styleguide` - every color, component and form control
 
 Need an account (logged-out visitors are sent to `/login`, then back):
 
 - `/onboarding` - name, username, niches, home stop and school; required once before anything else
-- `/profile` - your profile
+- `/profile` - your profile and your upcoming Going, Interested and Saved events
 - `/settings` - edit your profile, photo, preferences and privacy; log out
 
-Placeholders, each built in a later roadmap step: `/explore`, `/events/:id`, `/u/:username` (public), and `/events/new`, `/messages`, `/friends`, `/notifications`, `/admin` (account needed).
+Placeholders, each built in a later roadmap step: `/explore`, `/u/:username` (public), and `/events/new`, `/messages`, `/friends`, `/notifications`, `/admin` (account needed).
 
-Who's logged in comes from `useAuth()` in `src/lib/useAuth.js`; the route guards are in `src/components/Guards.jsx`.
+Who's logged in comes from `useAuth()` in `src/lib/useAuth.js`; the route guards are in `src/components/Guards.jsx`. Data that changes (an event, your RSVPs) loads through TanStack Query; the hooks are in `src/lib/useEvent.js` and `src/lib/useMyEvents.js`.
 
 Shared building blocks (buttons, form fields, avatars, dialogs, empty states) live in `src/components/ui/`. Colors are tokens in `src/index.css`; use the token names, never raw colors.
 

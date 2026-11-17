@@ -1,13 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { toEvent, watchEvents } from './events'
+import { fetchEvent, toEvent, watchEvents } from './events'
 
-// A fake Supabase client: remembers the realtime callback so tests can
-// pretend rows changed. No network.
-const fake = vi.hoisted(() => ({ onRowChange: null, removed: false }))
+// A fake Supabase client: remembers the realtime callback (and what it
+// was watching) so tests can pretend rows changed. No network.
+const fake = vi.hoisted(() => ({
+  onRowChange: null,
+  removed: false,
+  channelName: null,
+  filter: null,
+  queried: false,
+}))
 
 vi.mock('./supabase', () => {
   const channel = {
-    on(_type, _filter, callback) {
+    on(_type, filter, callback) {
+      fake.filter = filter
       fake.onRowChange = callback
       return channel
     },
@@ -17,7 +24,14 @@ vi.mock('./supabase', () => {
   }
   return {
     supabase: {
-      channel: () => channel,
+      from: () => {
+        fake.queried = true
+        throw new Error('tests should not query')
+      },
+      channel: (name) => {
+        fake.channelName = name
+        return channel
+      },
       removeChannel: () => {
         fake.removed = true
       },
@@ -92,7 +106,21 @@ describe('toEvent', () => {
   })
 })
 
+describe('fetchEvent', () => {
+  it('finds nothing for ids that are not numbers, without asking', async () => {
+    expect(await fetchEvent('abc')).toBeNull()
+    expect(fake.queried).toBe(false)
+  })
+})
+
 describe('watchEvents', () => {
+  it('can watch just one event', () => {
+    const stop = watchEvents(() => {}, { id: 12 })
+    expect(fake.channelName).toBe('event-12')
+    expect(fake.filter).toMatchObject({ table: 'events', filter: 'id=eq.12' })
+    stop()
+  })
+
   afterEach(() => {
     vi.useRealTimers()
   })
@@ -100,7 +128,7 @@ describe('watchEvents', () => {
   it('reloads once after a burst of changes goes quiet', () => {
     vi.useFakeTimers()
     const onChange = vi.fn()
-    watchEvents(onChange, 2000)
+    watchEvents(onChange, { waitMs: 2000 })
 
     // Five rows change in quick succession, like an engine run.
     for (let i = 0; i < 5; i++) {
@@ -116,7 +144,7 @@ describe('watchEvents', () => {
   it('stops listening and cancels a pending reload', () => {
     vi.useFakeTimers()
     const onChange = vi.fn()
-    const stop = watchEvents(onChange, 2000)
+    const stop = watchEvents(onChange, { waitMs: 2000 })
 
     fake.onRowChange()
     stop()

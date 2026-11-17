@@ -51,6 +51,22 @@ export function ArrowUpRightIcon({ className }) {
   )
 }
 
+export function CheckIcon({ className }) {
+  return (
+    <Icon className={className} strokeWidth={2.5}>
+      <path d="M20 6 9 17l-5-5" />
+    </Icon>
+  )
+}
+
+export function BookmarkIcon({ className }) {
+  return (
+    <Icon className={className}>
+      <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+    </Icon>
+  )
+}
+
 export function BellIcon({ className }) {
   return (
     <Icon className={className}>

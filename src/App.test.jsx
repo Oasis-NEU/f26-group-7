@@ -1,14 +1,23 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { fetchMyUpcoming } from './lib/myEvents'
 import { AuthContext } from './lib/useAuth'
 
-// Fake Supabase and events, so tests never use the network.
+// Fake Supabase and events, so tests never use the network. There are
+// no events, so every event page is "not on the schedule".
 vi.mock('./lib/supabase', () => ({ supabase: {} }))
 vi.mock('./lib/events', () => ({
   fetchWeek: () => Promise.resolve([]),
+  fetchEvent: () => Promise.resolve(null),
   watchEvents: () => () => {},
+}))
+vi.mock('./lib/myEvents', () => ({
+  fetchMyUpcoming: vi.fn(() =>
+    Promise.resolve({ going: [], interested: [], saved: [] }),
+  ),
 }))
 
 const LOGGED_OUT = { loading: false, user: null, profile: null }
@@ -42,12 +51,18 @@ const NOT_ONBOARDED = {
 // Render the whole app as if the browser were at `path`, as someone in
 // the given login state.
 function visit(path, auth = LOGGED_OUT) {
+  // A fresh cache for each test, so one test's data can't leak into another.
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   render(
-    <AuthContext.Provider value={auth}>
-      <MemoryRouter initialEntries={[path]}>
-        <App />
-      </MemoryRouter>
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider value={auth}>
+        <MemoryRouter initialEntries={[path]}>
+          <App />
+        </MemoryRouter>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   )
 }
 
@@ -72,9 +87,13 @@ describe('pages anyone can see', () => {
     expect(pageTitle()).toBe(title)
   })
 
-  it('reads values out of the address', () => {
+  it('shows the event page for an event address', async () => {
     visit('/events/12')
-    expect(pageTitle()).toBe('Event 12')
+    expect(
+      await screen.findByRole('heading', {
+        name: 'This event isn’t on the schedule',
+      }),
+    ).toBeVisible()
   })
 
   it('reads a username out of the address', () => {
@@ -115,6 +134,37 @@ describe('pages that need an account', () => {
   ])('shows %s when logged in', (path, title) => {
     visit(path, LOGGED_IN)
     expect(pageTitle()).toBe(title)
+  })
+
+  it('lists your upcoming events on your profile', async () => {
+    const start = new Date(Date.now() + 86_400_000)
+    fetchMyUpcoming.mockResolvedValueOnce({
+      going: [
+        {
+          id: 7,
+          title: 'Knit and sip',
+          start,
+          end: new Date(start.getTime() + 7_200_000),
+          change: null,
+          line: 'GL D',
+          stop: 'Longwood',
+        },
+      ],
+      interested: [],
+      saved: [],
+    })
+    visit('/profile', LOGGED_IN)
+
+    expect(await screen.findByText('Going (1)')).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Knit and sip' })).toHaveAttribute(
+      'href',
+      '/events/7',
+    )
+  })
+
+  it('suggests finding events when your profile has none', async () => {
+    visit('/profile', LOGGED_IN)
+    expect(await screen.findByText('Nothing yet')).toBeVisible()
   })
 
   it('welcomes you back by first name', () => {

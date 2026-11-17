@@ -29,6 +29,13 @@ export function isHappening(event, now) {
   return end !== null && actualStart(event) <= now && now < end
 }
 
+// Finished: the end has passed. Without an end time, assume two hours.
+export function isOver(event, now) {
+  const end =
+    actualEnd(event) ?? new Date(actualStart(event).getTime() + 2 * 3600_000)
+  return end <= now
+}
+
 // The event to show next: happening now or still to come, soonest first.
 // Cancelled events are skipped. An event with no end time counts as over
 // once it starts.
