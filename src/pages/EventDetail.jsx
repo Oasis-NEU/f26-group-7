@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import AlertChip from '../components/AlertChip'
 import { ArrowUpRightIcon } from '../components/Icons'
 import LineBadge from '../components/LineBadge'
+import RsvpButtons from '../components/RsvpButtons'
 import { Button, ButtonLink } from '../components/ui/Button'
 import { downloadIcs, googleCalendarUrl } from '../lib/calendar'
 import { timeRange } from '../lib/dates'
@@ -186,7 +187,8 @@ export default function EventDetail() {
           )}
           {canGo && (
             <>
-              <ButtonLink href={directionsUrl(event)}>
+              <RsvpButtons eventId={event.id} />
+              <ButtonLink href={directionsUrl(event)} className="mt-3">
                 Directions in Google Maps
                 <ArrowUpRightIcon className="size-4" />
               </ButtonLink>

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { fetchMyUpcoming } from './lib/myEvents'
 import { AuthContext } from './lib/useAuth'
 
 // Fake Supabase and events, so tests never use the network. There are
@@ -12,6 +13,11 @@ vi.mock('./lib/events', () => ({
   fetchWeek: () => Promise.resolve([]),
   fetchEvent: () => Promise.resolve(null),
   watchEvents: () => () => {},
+}))
+vi.mock('./lib/myEvents', () => ({
+  fetchMyUpcoming: vi.fn(() =>
+    Promise.resolve({ going: [], interested: [], saved: [] }),
+  ),
 }))
 
 const LOGGED_OUT = { loading: false, user: null, profile: null }
@@ -128,6 +134,37 @@ describe('pages that need an account', () => {
   ])('shows %s when logged in', (path, title) => {
     visit(path, LOGGED_IN)
     expect(pageTitle()).toBe(title)
+  })
+
+  it('lists your upcoming events on your profile', async () => {
+    const start = new Date(Date.now() + 86_400_000)
+    fetchMyUpcoming.mockResolvedValueOnce({
+      going: [
+        {
+          id: 7,
+          title: 'Knit and sip',
+          start,
+          end: new Date(start.getTime() + 7_200_000),
+          change: null,
+          line: 'GL D',
+          stop: 'Longwood',
+        },
+      ],
+      interested: [],
+      saved: [],
+    })
+    visit('/profile', LOGGED_IN)
+
+    expect(await screen.findByText('Going (1)')).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Knit and sip' })).toHaveAttribute(
+      'href',
+      '/events/7',
+    )
+  })
+
+  it('suggests finding events when your profile has none', async () => {
+    visit('/profile', LOGGED_IN)
+    expect(await screen.findByText('Nothing yet')).toBeVisible()
   })
 
   it('welcomes you back by first name', () => {

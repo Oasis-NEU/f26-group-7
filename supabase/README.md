@@ -22,6 +22,7 @@ numbered and run in order, like commits for the database.
 | `0003_migration_log.sql` | The `schema_migrations` log table |
 | `0004_events_details.sql` | Event details (description, image, end time, location, price, adults only, status), rules for valid niches, lines and prices, one row per `(source, source_id)`, search, and "only published events are public" |
 | `0005_profiles_details.sql` | Profile details (username, bio, school, home stop, privacy, role, onboarding), private columns readable only through `my_profile()`, safer profile editing, and the `avatars` photo bucket |
+| `0006_rsvps_and_saves.sql` | Going/Interested on RSVPs (only the status can change), a going count that only counts Going, and the private `saves` table |
 
 ### Rules
 
@@ -72,7 +73,9 @@ To remove all sample events:
 delete from public.events where source = 'seed';
 ```
 
-Deleting an event also deletes any RSVPs on it.
+Deleting an event also deletes any RSVPs and saves on it, so **re-running
+the seed clears every RSVP and save on the sample events**. That's fine
+for test data, but worth knowing before you refresh the dates.
 
 ## Sign-in settings
 
