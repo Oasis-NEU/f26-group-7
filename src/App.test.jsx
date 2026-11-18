@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { searchEvents } from './lib/events'
 import { fetchMyUpcoming } from './lib/myEvents'
 import { AuthContext } from './lib/useAuth'
 
@@ -10,7 +11,8 @@ import { AuthContext } from './lib/useAuth'
 // no events, so every event page is "not on the schedule".
 vi.mock('./lib/supabase', () => ({ supabase: {} }))
 vi.mock('./lib/events', () => ({
-  fetchWeek: () => Promise.resolve([]),
+  SEARCH_LIMIT: 200,
+  searchEvents: vi.fn(() => Promise.resolve({ events: [], capped: false })),
   fetchEvent: () => Promise.resolve(null),
   watchEvents: () => () => {},
 }))
@@ -75,6 +77,37 @@ describe('pages anyone can see', () => {
     visit('/')
     expect(pageTitle()).toBe('Find the small stuff')
     expect(await screen.findByText(/No events this week yet/)).toBeVisible()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '0 small things happening around Fenway and downtown this week.',
+    )
+  })
+
+  it('searches with the filters in the address', async () => {
+    visit('/?q=vinyl&when=weekend&niche=Records')
+    expect(
+      await screen.findByText('0 results for “vinyl” this weekend.'),
+    ).toBeVisible()
+    expect(searchEvents).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        q: 'vinyl',
+        when: 'weekend',
+        niches: ['Records'],
+      }),
+    )
+    expect(screen.getByRole('button', { name: 'Records' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('offers to clear filters when nothing matches', async () => {
+    visit('/?price=free')
+    expect(
+      await screen.findByText('Nothing matches these filters'),
+    ).toBeVisible()
+    expect(
+      screen.getAllByRole('button', { name: 'Clear filters' }).length,
+    ).toBeGreaterThan(0)
   })
 
   it.each([
