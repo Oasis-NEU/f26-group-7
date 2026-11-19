@@ -45,7 +45,7 @@ function Section({ title, children }) {
 }
 
 export default function Styleguide() {
-  const [niche, setNiche] = useState('All')
+  const [niches, setNiches] = useState([])
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -92,7 +92,7 @@ export default function Styleguide() {
       </Section>
 
       <Section title="Niche tabs">
-        <NicheTabs selected={niche} onSelect={setNiche} />
+        <NicheTabs selected={niches} onChange={setNiches} />
       </Section>
 
       <Section title="Buttons">

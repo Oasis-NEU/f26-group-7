@@ -1,4 +1,4 @@
-import { daysFromNow } from './dates'
+import { toSearchArgs } from './filters'
 import { supabase } from './supabase'
 
 // The columns the site uses. Not '*': the table also has a large `search`
@@ -81,17 +81,24 @@ export function toEvent(row) {
   }
 }
 
-// Events from the start of today through the next 7 days, soonest first.
-export async function fetchWeek() {
+// The most events one search brings back. More than this and the page
+// says so, rather than quietly leaving some out.
+export const SEARCH_LIMIT = 200
+
+// Events matching the Home page's filters, soonest first:
+// { events, capped }, where `capped` means there were more than the limit.
+export async function searchEvents(filters, now = new Date()) {
   const { data, error } = await supabase
-    .from('events')
+    .rpc('search_events', toSearchArgs(filters, now))
     .select(EVENT_COLUMNS)
-    .gte('start_at', daysFromNow(0, 0).toISOString())
-    .lt('start_at', daysFromNow(7, 0).toISOString())
-    .order('start_at')
+    // One extra, to tell whether there were more.
+    .range(0, SEARCH_LIMIT)
 
   if (error) throw error
-  return data.map(toEvent)
+  return {
+    events: data.slice(0, SEARCH_LIMIT).map(toEvent),
+    capped: data.length > SEARCH_LIMIT,
+  }
 }
 
 // One event by its id, or null if there's no published event with that id.

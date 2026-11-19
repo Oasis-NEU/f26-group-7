@@ -1,14 +1,24 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchEvent, toEvent, watchEvents } from './events'
+import { DEFAULT_FILTERS } from './filters'
+import {
+  SEARCH_LIMIT,
+  fetchEvent,
+  searchEvents,
+  toEvent,
+  watchEvents,
+} from './events'
 
 // A fake Supabase client: remembers the realtime callback (and what it
-// was watching) so tests can pretend rows changed. No network.
+// was watching) so tests can pretend rows changed, and what a search
+// asked for. No network.
 const fake = vi.hoisted(() => ({
   onRowChange: null,
   removed: false,
   channelName: null,
   filter: null,
   queried: false,
+  rpc: null, // { name, args, range }
+  rows: [],
 }))
 
 vi.mock('./supabase', () => {
@@ -27,6 +37,18 @@ vi.mock('./supabase', () => {
       from: () => {
         fake.queried = true
         throw new Error('tests should not query')
+      },
+      rpc: (name, args) => {
+        fake.rpc = { name, args }
+        const call = {
+          select: () => call,
+          range: (from, to) => {
+            fake.rpc.range = [from, to]
+            return call
+          },
+          then: (resolve) => resolve({ data: fake.rows, error: null }),
+        }
+        return call
       },
       channel: (name) => {
         fake.channelName = name
@@ -103,6 +125,31 @@ describe('toEvent', () => {
   it('reads prices that arrive as text', () => {
     const event = toEvent({ ...row, price_min: '0.00', price_max: '20.00' })
     expect(event.price).toEqual({ min: 0, max: 20 })
+  })
+})
+
+describe('searchEvents', () => {
+  it('asks the database search for the filters', async () => {
+    fake.rows = [row]
+    const result = await searchEvents({ ...DEFAULT_FILTERS, q: 'knit' })
+
+    expect(fake.rpc.name).toBe('search_events')
+    expect(fake.rpc.args).toMatchObject({ q: 'knit', free_only: false })
+    expect(result.events.map((event) => event.title)).toEqual(['Knit and sip'])
+    expect(result.capped).toBe(false)
+  })
+
+  it('notices when there are more events than it shows', async () => {
+    fake.rows = Array.from({ length: SEARCH_LIMIT + 1 }, (_, i) => ({
+      ...row,
+      id: i,
+    }))
+    const result = await searchEvents(DEFAULT_FILTERS)
+
+    // One extra is asked for, to tell whether there were more.
+    expect(fake.rpc.range).toEqual([0, SEARCH_LIMIT])
+    expect(result.events).toHaveLength(SEARCH_LIMIT)
+    expect(result.capped).toBe(true)
   })
 })
 

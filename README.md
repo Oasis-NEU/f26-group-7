@@ -1,6 +1,6 @@
 # Espial
 
-Espial is a React app for finding small events around Fenway and downtown Boston. The Home page loads events from Supabase, groups them into a weekly timetable, filters by niche, shows T-line information, and refreshes when event rows change.
+Espial is a React app for finding small events around Fenway and downtown Boston. The Home page searches events in Supabase (words, dates, niches, walking distance and price), groups them into a timetable, shows T-line information, and refreshes when event rows change.
 
 ## Local setup
 
@@ -35,7 +35,7 @@ npm run check     # Run tests, lint, and build
 
 Anyone can see:
 
-- `/` - weekly event discovery and niche filtering
+- `/` - event discovery: search, When, walking distance, price and niches, all kept in the address (`/?q=vinyl&when=weekend&niche=Records,Film&walk=10&near=Symphony&price=free`) so a filtered view can be shared. Logged in, a "For you" row shows events in your niches, closest to your home stop first.
 - `/events/:id` - one event: details, directions, calendar, sharing, and Going / Interested / Save when logged in
 - `/welcome`, `/login`, `/signup` - what Espial is, and email-and-password accounts
 - `/styleguide` - every color, component and form control
@@ -48,7 +48,7 @@ Need an account (logged-out visitors are sent to `/login`, then back):
 
 Placeholders, each built in a later roadmap step: `/explore`, `/u/:username` (public), and `/events/new`, `/messages`, `/friends`, `/notifications`, `/admin` (account needed).
 
-Who's logged in comes from `useAuth()` in `src/lib/useAuth.js`; the route guards are in `src/components/Guards.jsx`. Data that changes (an event, your RSVPs) loads through TanStack Query; the hooks are in `src/lib/useEvent.js` and `src/lib/useMyEvents.js`.
+Who's logged in comes from `useAuth()` in `src/lib/useAuth.js`; the route guards are in `src/components/Guards.jsx`. Data that changes (searches, an event, your RSVPs) loads through TanStack Query; the hooks are in `src/lib/useEventSearch.js`, `src/lib/useEvent.js` and `src/lib/useMyEvents.js`. The filters are read from and written to the address in `src/lib/filters.js`, and searches run in the database through `search_events()` (migration 0007).
 
 Shared building blocks (buttons, form fields, avatars, dialogs, empty states) live in `src/components/ui/`. Colors are tokens in `src/index.css`; use the token names, never raw colors.
 

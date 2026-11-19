@@ -23,6 +23,7 @@ numbered and run in order, like commits for the database.
 | `0004_events_details.sql` | Event details (description, image, end time, location, price, adults only, status), rules for valid niches, lines and prices, one row per `(source, source_id)`, search, and "only published events are public" |
 | `0005_profiles_details.sql` | Profile details (username, bio, school, home stop, privacy, role, onboarding), private columns readable only through `my_profile()`, safer profile editing, and the `avatars` photo bucket |
 | `0006_rsvps_and_saves.sql` | Going/Interested on RSVPs (only the status can change), a going count that only counts Going, and the private `saves` table |
+| `0007_search_events.sql` | `search_events()`: one search for words (matching the start of words, so "rec" finds "records"), dates, niches, walking distance from a stop, and price, plus the `distance_m()` helper |
 
 ### Rules
 

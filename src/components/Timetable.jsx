@@ -1,5 +1,7 @@
 import { dayLabel, groupByDay, isSameDay, shortDate } from '../lib/dates'
 import EventRow from './EventRow'
+import { Button } from './ui/Button'
+import EmptyState from './ui/EmptyState'
 
 // Gray bars in the shape of the timetable, shown while events load.
 function Placeholders() {
@@ -20,7 +22,8 @@ function Placeholders() {
 
 // The week as a timetable. The Day column is drawn as a subway line:
 // a thick bar with a station dot for each day.
-export default function Timetable({ events, status, niche }) {
+// `filtered` is true when the page has filters on; `onClear` turns them off.
+export default function Timetable({ events, status, filtered, onClear }) {
   if (status === 'loading') return <Placeholders />
 
   if (status === 'error') {
@@ -32,11 +35,20 @@ export default function Timetable({ events, status, niche }) {
   }
 
   if (events.length === 0) {
+    if (filtered) {
+      return (
+        <EmptyState
+          title="Nothing matches these filters"
+          message="Try a longer date range, more niches or a farther walk."
+        >
+          <Button onClick={onClear}>Clear filters</Button>
+        </EmptyState>
+      )
+    }
     return (
       <p className="py-4 text-lg">
-        {niche === 'All'
-          ? 'No events this week yet. They show up here as soon as the engine finds them.'
-          : 'Nothing in this niche this week. Try All.'}
+        No events this week yet. They show up here as soon as the engine finds
+        them.
       </p>
     )
   }
