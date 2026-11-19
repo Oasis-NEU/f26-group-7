@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router'
 import FilterBar from '../components/FilterBar'
+import ForYou from '../components/ForYou'
 import MapPanel from '../components/MapPanel'
 import Timetable from '../components/Timetable'
 import TonightPanel from '../components/TonightPanel'
@@ -11,10 +12,11 @@ import {
   whenText,
   writeFilters,
 } from '../lib/filters'
+import { pickForYou } from '../lib/forYou'
 import { firstName } from '../lib/names'
 import { nextEvent } from '../lib/schedule'
 import { useAuth } from '../lib/useAuth'
-import { useEventSearch } from '../lib/useEventSearch'
+import { useEventSearch, useForYou } from '../lib/useEventSearch'
 
 // "Welcome back, Jordan" when logged in. The display size is huge, so
 // only the first name.
@@ -53,6 +55,8 @@ export default function Home() {
   const [params, setParams] = useSearchParams()
   const filters = readFilters(params)
   const search = useEventSearch(filters)
+  // Logged out, `profile` is null, so there are no niches and it doesn't run.
+  const forYou = useForYou(profile)
 
   // Picking from a menu adds a step the Back button can undo; typing in
   // the search box replaces the current step instead of adding one per
@@ -65,6 +69,11 @@ export default function Home() {
   const now = new Date()
   const next = nextEvent(events, now)
   const filtered = hasFilters(filters)
+  // Only on a plain Home page, so it doesn't compete with search results.
+  const picks =
+    !filtered && forYou.data
+      ? pickForYou(forYou.data.events, profile?.homeStop, now)
+      : []
 
   return (
     <main className="mx-auto max-w-content px-4 pb-20 md:px-10">
@@ -84,6 +93,8 @@ export default function Home() {
           homeStop={profile?.homeStop}
         />
       </section>
+
+      <ForYou picks={picks} homeStop={profile?.homeStop} />
 
       <div className="grid gap-12 border-t-[6px] border-ink pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         {/* Dimmed while new results load over the old ones. */}

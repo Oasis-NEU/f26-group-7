@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { searchEvents } from './lib/events'
 import { fetchMyUpcoming } from './lib/myEvents'
@@ -203,6 +203,68 @@ describe('pages that need an account', () => {
   it('welcomes you back by first name', () => {
     visit('/', LOGGED_IN)
     expect(pageTitle()).toBe('Welcome back, Jordan')
+  })
+
+  describe('For you', () => {
+    // Only searches by niche find this Records event near Symphony, so a
+    // plain Home search stays empty and the card can only be For you.
+    const start = new Date(Date.now() + 86_400_000)
+    const nearby = {
+      id: 9,
+      title: 'Crate digging night',
+      niche: 'Records',
+      start,
+      end: new Date(start.getTime() + 7_200_000),
+      change: null,
+      location: { lat: 42.341512, lng: -71.083423 },
+      line: 'GL E',
+      stop: 'Symphony',
+    }
+
+    function findByNiche() {
+      searchEvents.mockImplementation((filters) =>
+        Promise.resolve({
+          events: filters.niches.length ? [nearby] : [],
+          capped: false,
+        }),
+      )
+    }
+
+    afterEach(() => {
+      searchEvents.mockImplementation(() =>
+        Promise.resolve({ events: [], capped: false }),
+      )
+    })
+
+    it('shows events in your niches, with the walk from your stop', async () => {
+      findByNiche()
+      visit('/', LOGGED_IN)
+
+      expect(
+        await screen.findByRole('heading', { name: 'For you' }),
+      ).toBeVisible()
+      expect(
+        screen.getByRole('link', { name: 'Crate digging night' }),
+      ).toHaveAttribute('href', '/events/9')
+      expect(screen.getByText(/-min walk from Symphony/)).toBeVisible()
+      expect(searchEvents).toHaveBeenCalledWith(
+        expect.objectContaining({ niches: ['Records'], when: 'week' }),
+      )
+    })
+
+    it('is hidden when logged out', async () => {
+      findByNiche()
+      visit('/')
+      await screen.findByText(/No events this week yet/)
+      expect(screen.queryByRole('heading', { name: 'For you' })).toBeNull()
+    })
+
+    it('is hidden while filters are on', async () => {
+      findByNiche()
+      visit('/?when=today', LOGGED_IN)
+      await screen.findByText('Nothing matches these filters')
+      expect(screen.queryByRole('heading', { name: 'For you' })).toBeNull()
+    })
   })
 
   it('sends logged-in people away from Log in and Sign up', () => {
