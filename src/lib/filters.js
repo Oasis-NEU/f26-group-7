@@ -175,19 +175,27 @@ export function whenText(filters, now = new Date()) {
   }
 }
 
+// The area the walk filter searches: { stop, meters } around a T stop, or
+// null when there's no walk filter. The map draws this same circle.
+export function walkArea(filters) {
+  const stop = filters.walk ? findStop(filters.near) : null
+  if (!stop) return null
+  return { stop, meters: Number(filters.walk) * WALK_METERS_PER_MINUTE }
+}
+
 // filters -> the inputs for search_events() in the database.
 export function toSearchArgs(filters, now = new Date()) {
   const { from, to } = dateRange(filters, now)
-  const stop = filters.walk ? findStop(filters.near) : null
+  const area = walkArea(filters)
 
   return {
     q: filters.q.trim() || null,
     starts_after: from.toISOString(),
     starts_before: to.toISOString(),
     niches: filters.niches.length ? filters.niches : null,
-    near_lat: stop?.lat ?? null,
-    near_lng: stop?.lng ?? null,
-    within_m: stop ? Number(filters.walk) * WALK_METERS_PER_MINUTE : null,
+    near_lat: area?.stop.lat ?? null,
+    near_lng: area?.stop.lng ?? null,
+    within_m: area?.meters ?? null,
     free_only: filters.price === 'free',
     max_price:
       filters.price && filters.price !== 'free' ? Number(filters.price) : null,

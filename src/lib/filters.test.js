@@ -5,6 +5,7 @@ import {
   hasFilters,
   readFilters,
   toSearchArgs,
+  walkArea,
   whenText,
   writeFilters,
 } from './filters'
@@ -145,6 +146,19 @@ describe('whenText', () => {
       'Nov 28–Dec 2',
     )
     expect(whenText(range('2026-11-20', '2026-11-20'), now)).toBe('on Nov 20')
+  })
+})
+
+describe('walkArea', () => {
+  it('is the stop and the walk in meters', () => {
+    const area = walkArea(filters({ walk: '15', near: 'Kenmore' }))
+    expect(area.stop.name).toBe('Kenmore')
+    expect(area.meters).toBe(1200)
+  })
+
+  it('is null without a walk or with an unknown stop', () => {
+    expect(walkArea(filters({ near: 'Kenmore' }))).toBeNull()
+    expect(walkArea(filters({ walk: '10', near: 'Narnia' }))).toBeNull()
   })
 })
 
