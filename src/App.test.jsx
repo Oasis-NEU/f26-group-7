@@ -16,6 +16,15 @@ vi.mock('./lib/events', () => ({
   fetchEvent: () => Promise.resolve(null),
   watchEvents: () => () => {},
 }))
+// The test browser can't draw maps (no WebGL), so a stand-in that says
+// how many events it was given.
+vi.mock('./components/EventMap', () => ({
+  default: ({ events }) => (
+    <div role="region" aria-label="Map of events">
+      {events.length} pins
+    </div>
+  ),
+}))
 vi.mock('./lib/myEvents', () => ({
   fetchMyUpcoming: vi.fn(() =>
     Promise.resolve({ going: [], interested: [], saved: [] }),
@@ -98,6 +107,16 @@ describe('pages anyone can see', () => {
       'aria-pressed',
       'true',
     )
+  })
+
+  it('shows a map on Home that opens Explore with the same filters', async () => {
+    visit('/?q=vinyl&when=weekend')
+    expect(
+      await screen.findByRole('region', { name: 'Map of events' }),
+    ).toBeVisible()
+    expect(
+      screen.getByRole('link', { name: 'Open the full map' }),
+    ).toHaveAttribute('href', '/explore?q=vinyl&when=weekend')
   })
 
   it('offers to clear filters when nothing matches', async () => {

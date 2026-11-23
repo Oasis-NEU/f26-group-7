@@ -1,7 +1,8 @@
-import { useSearchParams } from 'react-router'
+import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import FilterBar from '../components/FilterBar'
 import ForYou from '../components/ForYou'
-import MapPanel from '../components/MapPanel'
+import LazyEventMap from '../components/LazyEventMap'
 import Timetable from '../components/Timetable'
 import TonightPanel from '../components/TonightPanel'
 import { SEARCH_LIMIT } from '../lib/events'
@@ -9,6 +10,7 @@ import {
   DEFAULT_FILTERS,
   hasFilters,
   readFilters,
+  walkArea,
   whenText,
   writeFilters,
 } from '../lib/filters'
@@ -57,6 +59,8 @@ export default function Home() {
   const search = useEventSearch(filters)
   // Logged out, `profile` is null, so there are no niches and it doesn't run.
   const forYou = useForYou(profile)
+  // The event whose pin was clicked on the map.
+  const [selectedId, setSelectedId] = useState(null)
 
   // Picking from a menu adds a step the Back button can undo; typing in
   // the search box replaces the current step instead of adding one per
@@ -69,6 +73,9 @@ export default function Home() {
   const now = new Date()
   const next = nextEvent(events, now)
   const filtered = hasFilters(filters)
+  // The same filters on the full map.
+  const query = writeFilters(filters).toString()
+  const exploreLink = query ? `/explore?${query}` : '/explore'
   // Only on a plain Home page, so it doesn't compete with search results.
   const picks =
     !filtered && forYou.data
@@ -116,7 +123,20 @@ export default function Home() {
           )}
         </div>
         <aside className="max-w-120">
-          <MapPanel />
+          <LazyEventMap
+            compact
+            events={events}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            walkArea={walkArea(filters)}
+            className="aspect-4/3"
+          />
+          <Link
+            to={exploreLink}
+            className="mt-3 inline-block font-bold underline"
+          >
+            Open the full map
+          </Link>
           <TonightPanel event={next} now={now} />
         </aside>
       </div>
