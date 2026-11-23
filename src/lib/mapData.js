@@ -94,14 +94,19 @@ export function walkAreaToGeoJSON(area) {
 // About 300 m around a single pin, so the map doesn't zoom all the way in.
 const LONE_PIN_PADDING = 0.003
 
-// The smallest box holding every pin, as [[west, south], [east, north]].
-// With no pins, the whole area.
-export function boundsFor(events) {
-  const spots = events.filter((event) => event.location)
-  if (spots.length === 0) return AREA_BOUNDS
+// The smallest box holding every pin, and the whole walk circle when
+// there's a walk filter (walkArea() in filters.js), as
+// [[west, south], [east, north]]. With nothing to fit, the whole area.
+export function boundsFor(events, area = null) {
+  const points = events
+    .filter((event) => event.location)
+    .map((event) => [event.location.lng, event.location.lat])
+  // A 4-sided "circle" is just its east, north, west and south edges.
+  if (area) points.push(...circle(area.stop, area.meters, 4).coordinates[0])
+  if (points.length === 0) return AREA_BOUNDS
 
-  const lngs = spots.map((event) => event.location.lng)
-  const lats = spots.map((event) => event.location.lat)
+  const lngs = points.map(([lng]) => lng)
+  const lats = points.map(([, lat]) => lat)
   let [west, east] = [Math.min(...lngs), Math.max(...lngs)]
   let [south, north] = [Math.min(...lats), Math.max(...lats)]
 

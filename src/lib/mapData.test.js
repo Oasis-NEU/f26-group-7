@@ -125,6 +125,27 @@ describe('boundsFor', () => {
     ])
   })
 
+  it('fits the whole walk circle too', () => {
+    const stop = findStop('Symphony')
+    const [[west, south], [east, north]] = boundsFor([], { stop, meters: 800 })
+    expect(distanceMeters(stop, { lat: north, lng: stop.lng })).toBeCloseTo(
+      800,
+      -1,
+    )
+    expect(distanceMeters(stop, { lat: south, lng: stop.lng })).toBeCloseTo(
+      800,
+      -1,
+    )
+    expect(distanceMeters(stop, { lat: stop.lat, lng: east })).toBeCloseTo(
+      800,
+      -1,
+    )
+    expect(distanceMeters(stop, { lat: stop.lat, lng: west })).toBeCloseTo(
+      800,
+      -1,
+    )
+  })
+
   it('leaves room around a single pin', () => {
     const [[west, south], [east, north]] = boundsFor([event(1)])
     expect(west).toBeLessThan(-71.06)

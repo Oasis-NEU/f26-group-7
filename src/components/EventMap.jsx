@@ -323,22 +323,24 @@ export default function EventMap({
     map?.getSource('walk').setData(walkAreaToGeoJSON(walkArea))
   }, [map, walkArea])
 
-  // Fit the map to the pins when the results change. Not when the same
+  // Fit the map to the pins (and the walk circle) when they change. Not when the same
   // results reload in the background, which would undo the visitor's own
   // zooming. MapLibre skips the animation for visitors who ask their
   // computer for less motion.
   const results = resultsKey(events)
+  const walkKey = walkArea ? `${walkArea.stop.name} ${walkArea.meters}` : ''
   useEffect(() => {
     // Extra room on the right for the zoom buttons and at the bottom for
     // the credits, so no pin hides under them.
     const room = compact ? 32 : 64
-    map?.fitBounds(boundsFor(events), {
+    map?.fitBounds(boundsFor(events, walkArea), {
       padding: { top: room, left: room, right: room + 40, bottom: room + 40 },
       maxZoom: 15,
     })
-    // `events` changes on every reload; `results` only when they differ.
+    // `events` and `walkArea` are new objects on every reload; `results`
+    // and `walkKey` only change when they really differ.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, results, compact])
+  }, [map, results, walkKey, compact])
 
   // Bring a newly selected pin into view if it's off the edge of the map
   // (when it was picked from the list). A pin that was clicked is already
