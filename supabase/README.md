@@ -59,10 +59,20 @@ If a file is in `migrations/` but not in this list, it hasn't been run yet.
 
 ## Sample data
 
-`seed.sql` adds about 30 made-up events over the next 7 days, with dates
-counted from today, so they always show on the Home page. Every row has
-`source = 'seed'`. Running the file again replaces the old sample rows
-with fresh dates and never touches real events.
+`seed.sql` adds about 50 made-up events over the next 30 days, with dates
+counted from today, so they always show on the site. They cover every
+niche, stop and alert, a range of prices and walking distances, and three
+21+ events. Every row has `source = 'seed'`. Running the file again
+replaces the old sample rows with fresh dates and never touches real
+events.
+
+Three of the rows are hidden on purpose: two `pending` and one `rejected`,
+like events people post that haven't been approved. If any of them
+(`seed:52`, `seed:53`, `seed:54`) ever shows on the site, the "only
+published events are public" rule from 0004 is broken.
+
+The sample data goes stale: after a week the first events have passed, and
+after a month the site is empty. Run it again to move every event forward.
 
 To run it: open a new SQL Editor tab, paste all of `seed.sql`, and click
 **Run**. The warning about a destructive query comes from the `delete`
