@@ -4,10 +4,14 @@ The plan for roadmap step 10 (friends, other people's profiles, and
 privacy), with draft backend code and the other ways each part could be
 built.
 
-> **Status: planning only.** Nothing here has been run against a
-> database, and nothing in the app uses it yet. The JavaScript draft
-> passes the project's lint and Prettier checks, and its tests pass when
-> it's copied into `src/lib`.
+> **Status: planning only.** Nothing in the app uses this yet, and none of
+> it has been run on the shared Supabase project. The SQL draft was tried
+> on a throwaway local database (PGlite, Postgres 18, with stand-ins for
+> Supabase's roles and `auth.uid()`): migrations 0001 to 0008 load, and 69
+> checks pass. They cover every row of the [checks table](#phase-5-testing),
+> plus search, suggestions, and the runnable SQL examples in this file.
+> The JavaScript draft passes the project's lint and Prettier checks, and
+> its tests pass when it's copied into `src/lib`.
 
 | File                                               | What it is                                                                                              |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -331,9 +335,14 @@ helper in `myEvents.js`.
 ## Phase 5: testing
 
 **Try it somewhere safe first.** Migrations go straight into the one
-shared project, so run 0001 to 0008 on a throwaway database first: a
-local one (the Supabase CLI's `supabase start`, which needs Docker Desktop
-running) or a spare free project.
+shared project, so run 0001 to 0008 on a throwaway database first:
+
+- a local Supabase (the Supabase CLI's `supabase start`, which needs
+  Docker Desktop running)
+- a spare free Supabase project
+- PGlite, which runs Postgres inside Node with no Docker. That's how this
+  draft was tested, with small stand-ins for Supabase's roles,
+  `auth.users` and `auth.uid()`.
 
 **Test accounts.** Sign up three accounts on the site (email confirmation
 is off): `test_a`, `test_b` and `test_c`. Log in as `test_c` and press

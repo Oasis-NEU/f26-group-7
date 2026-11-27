@@ -1,7 +1,9 @@
 -- 0008 (DRAFT): Friends, friend requests, and privacy for RSVPs.
 --
--- ⚠️ DRAFT FOR PLANNING. This has NOT been run anywhere, not even on a
--- local database. Don't paste it into the SQL Editor yet. When it's ready:
+-- ⚠️ DRAFT FOR PLANNING. Don't paste it into the SQL Editor yet. So far it
+-- has only been tried on a throwaway local database (PGlite, with
+-- stand-ins for Supabase's roles and auth.uid()), where 0001-0008 loaded
+-- and all 69 checks of the rules passed. When it's ready:
 --   1. Claim 0008 in the team chat (see supabase/README.md).
 --   2. Copy this file to supabase/migrations/0008_friends.sql.
 --   3. Try it on a local or throwaway database first, using the checks in
